@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">thamizhanalogclock</string>
+    <string name="wallpaper_description">A simple text-based live wallpaper.</string>
+    <string name="wallpaper_name">There is No Tomorrow Wallpaper</string>
 </resources>
