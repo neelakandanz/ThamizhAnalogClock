@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
+// Key for shared preference
+private const val PREF_NAME = "wallpaper_prefs"
+private const val PREF_KEY_TEXT = "selected_text"
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,15 +22,25 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // Find the button from the layout
-        val setWallpaperButton: Button = findViewById(R.id.set_wallpaper_button)
+        // Find all buttons
+        val buttons = listOf<Button>(
+            findViewById(R.id.btn_option_1),
+            findViewById(R.id.btn_option_2),
+            findViewById(R.id.btn_option_3),
+            findViewById(R.id.btn_option_4),
+            findViewById(R.id.btn_option_5)
+        )
 
-        // Set the click listener
-        setWallpaperButton.setOnClickListener {
-            launchWallpaperChooser()
+        // Assign click listener
+        buttons.forEach { button ->
+            val wallpaperText = button.tag.toString()
+            button.setOnClickListener {
+                saveSelectedText(wallpaperText)
+                launchWallpaperChooser()
+            }
         }
 
-        // Handle system insets (status/navigation bars)
+        // Handle insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -34,14 +48,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Launches the wallpaper chooser to set the live wallpaper.
-     * Uses modern intent for API >= 17 and fallback for older devices.
-     */
+    private fun saveSelectedText(text: String) {
+        getSharedPreferences(PREF_NAME, MODE_PRIVATE)
+            .edit()
+            .putString(PREF_KEY_TEXT, text)
+            .apply()
+    }
+
     private fun launchWallpaperChooser() {
         val intent: Intent
 
-        // Use modern Live Wallpaper chooser for Android 4.2+ (API 17+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                 putExtra(
@@ -50,25 +66,22 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         } else {
-            // Fallback for very old versions
             intent = Intent(Intent.ACTION_SET_WALLPAPER)
         }
 
         try {
             startActivity(intent)
-        } catch (ignored: Exception) {
-            // Fallback: open Android wallpaper settings directly
-            Intent(Intent.ACTION_VIEW).also {
-                it.setClassName(
-                    "com.android.settings",
-                    "com.android.settings.wallpaper.WallpaperSettings"
-                )
-                try {
-                    startActivity(it)
-                } catch (ignored2: Exception) {
-                    // Final fallback: open basic wallpaper chooser
-                    startActivity(Intent(Intent.ACTION_SET_WALLPAPER))
+        } catch (_: Exception) {
+            try {
+                val fallbackIntent = Intent(Intent.ACTION_VIEW).apply {
+                    setClassName(
+                        "com.android.settings",
+                        "com.android.settings.wallpaper.WallpaperSettings"
+                    )
                 }
+                startActivity(fallbackIntent)
+            } catch (_: Exception) {
+                startActivity(Intent(Intent.ACTION_SET_WALLPAPER))
             }
         }
     }
