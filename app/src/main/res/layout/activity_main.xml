@@ -8,10 +8,21 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/message_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Live Wallpaper Installed!\n\nLong-press on your home screen to set 'There is No Tomorrow Wallpaper'."
+        android:layout_marginBottom="16dp"
+        android:textAlignment="center"
+        android:text="Your Live Wallpaper is installed! Click the button below to open the selector and set it as your wallpaper."
+        app:layout_constraintBottom_toTopOf="@+id/set_wallpaper_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/set_wallpaper_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_set_wallpaper"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
