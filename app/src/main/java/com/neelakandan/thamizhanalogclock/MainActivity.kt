@@ -11,10 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-// Key for shared preference
-private const val PREF_NAME = "wallpaper_prefs"
-private const val PREF_KEY_TEXT = "selected_text"
-
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,22 +18,12 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        // Find all buttons
-        val buttons = listOf<Button>(
-            findViewById(R.id.btn_option_1),
-            findViewById(R.id.btn_option_2),
-            findViewById(R.id.btn_option_3),
-            findViewById(R.id.btn_option_4),
-            findViewById(R.id.btn_option_5)
-        )
+        // Find the button
+        val setWallpaperButton: Button = findViewById(R.id.btn_set_wallpaper)
 
         // Assign click listener
-        buttons.forEach { button ->
-            val wallpaperText = button.tag.toString()
-            button.setOnClickListener {
-                saveSelectedText(wallpaperText)
-                launchWallpaperChooser()
-            }
+        setWallpaperButton.setOnClickListener {
+            launchWallpaperChooser()
         }
 
         // Handle insets
@@ -48,13 +34,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveSelectedText(text: String) {
-        getSharedPreferences(PREF_NAME, MODE_PRIVATE)
-            .edit()
-            .putString(PREF_KEY_TEXT, text)
-            .apply()
-    }
-
     private fun launchWallpaperChooser() {
         val intent: Intent
 
@@ -62,7 +41,8 @@ class MainActivity : AppCompatActivity() {
             intent = Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER).apply {
                 putExtra(
                     WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                    ComponentName(this@MainActivity, TextLiveWallpaper::class.java)
+                    // IMPORTANT: Change this to the new wallpaper service
+                    ComponentName(this@MainActivity, AnalogClockWallpaper::class.java)
                 )
             }
         } else {

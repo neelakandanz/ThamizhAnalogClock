@@ -16,59 +16,19 @@
         android:padding="24dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_set_wallpaper"
+        app:layout_constraintVertical_chainStyle="packed"/>
 
-    <LinearLayout
-        android:id="@+id/options_container"
+    <Button
+        android:id="@+id/btn_set_wallpaper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
+        android:text="@string/button_set_wallpaper"
+        android:layout_margin="16dp"
         app:layout_constraintTop_toBottomOf="@id/title_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <Button
-            android:id="@+id/btn_option_1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_option_1"
-            android:tag="@string/text_option_1"
-            android:layout_margin="8dp" />
-
-        <Button
-            android:id="@+id/btn_option_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_option_2"
-            android:tag="@string/text_option_2"
-            android:layout_margin="8dp" />
-
-        <Button
-            android:id="@+id/btn_option_3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_option_3"
-            android:tag="@string/text_option_3"
-            android:layout_margin="8dp" />
-
-        <Button
-            android:id="@+id/btn_option_4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_option_4"
-            android:tag="@string/text_option_4"
-            android:layout_margin="8dp" />
-
-        <Button
-            android:id="@+id/btn_option_5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/text_option_5"
-            android:tag="@string/text_option_5"
-            android:layout_margin="8dp" />
-
-    </LinearLayout>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

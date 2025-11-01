@@ -13,7 +13,7 @@
         android:theme="@style/Theme.Thamizhanalogclock">
 
         <service
-            android:name=".TextLiveWallpaper"
+            android:name=".AnalogClockWallpaper"
             android:label="@string/wallpaper_name"
             android:permission="android.permission.BIND_WALLPAPER"
             android:exported="true">
@@ -22,7 +22,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.service.wallpaper"
-                android:resource="@xml/text_wallpaper" />
+                android:resource="@xml/analog_clock_wallpaper" />
         </service>
 
         <activity

@@ -1,13 +1,8 @@
 <resources>
-    <string name="app_name">thamizhanalogclock</string>
-    <string name="activity_title">Choose Your Live Wallpaper Text</string>
-    <string name="wallpaper_description">A simple text-based live wallpaper.</string>
-    <string name="wallpaper_name">There is No Tomorrow Wallpaper</string>
+    <string name="app_name">Thamizh Analog Clock</string>
+    <string name="activity_title">Set Your Live Wallpaper</string>
+    <string name="wallpaper_description">A simple analog clock live wallpaper.</string>
+    <string name="wallpaper_name">Analog Clock Wallpaper</string>
     <string name="button_set_wallpaper">Set Live Wallpaper</string>
 
-    <string name="text_option_1">There is No Tomorrow</string>
-    <string name="text_option_2">Today is the Day</string>
-    <string name="text_option_3">Make it Happen</string>
-    <string name="text_option_4">The Time is Now</string>
-    <string name="text_option_5">Focus on the Present</string>
 </resources>

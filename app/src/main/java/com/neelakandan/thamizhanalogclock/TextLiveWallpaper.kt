@@ -1,6 +1,5 @@
 package com.neelakandan.thamizhanalogclock
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -8,64 +7,78 @@ import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.view.SurfaceHolder
+import java.util.Calendar
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
 
-private const val PREF_NAME = "wallpaper_prefs"
-private const val PREF_KEY_TEXT = "selected_text"
-
-class TextLiveWallpaper : WallpaperService() {
+class AnalogClockWallpaper : WallpaperService() {
 
     override fun onCreateEngine(): Engine {
-        return TextWallpaperEngine()
+        return ClockWallpaperEngine()
     }
 
-    private inner class TextWallpaperEngine : Engine() {
-        private var dynamicText: String = getString(R.string.text_option_1)
+    private inner class ClockWallpaperEngine : Engine() {
 
         private val handler = Handler(Looper.getMainLooper())
-        private val drawDelayMillis: Long = 30
         private var isVisible = false
-
-        private var xPos = 0f
-        private var yPos = 0f
-        private var xVelocity = 5f
-        private var yVelocity = 5f
         private var screenWidth = 0
         private var screenHeight = 0
+        private var centerX = 0f
+        private var centerY = 0f
+        private var radius = 0f
 
-        private val paint = Paint().apply {
+        // Paints for different clock parts
+        private val facePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.WHITE
-            textSize = 50f
-            textAlign = Paint.Align.CENTER
-            isFakeBoldText = true
+            style = Paint.Style.STROKE
+            strokeWidth = 5f
+        }
+
+        private val hourHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.STROKE
+            strokeWidth = 10f
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        private val minuteHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.STROKE
+            strokeWidth = 6f
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        private val secondHandPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.RED
+            style = Paint.Style.STROKE
+            strokeWidth = 3f
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        private val centerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            style = Paint.Style.FILL
         }
 
         private val drawRunnable = object : Runnable {
             override fun run() {
                 if (isVisible) {
                     drawFrame()
-                    handler.postDelayed(this, drawDelayMillis)
+                    // Schedule the next draw in 1 second
+                    handler.postDelayed(this, 1000)
                 }
             }
-        }
-
-        override fun onCreate(surfaceHolder: SurfaceHolder?) {
-            super.onCreate(surfaceHolder)
-
-            // Retrieve saved text from SharedPreferences
-            val prefs = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-            dynamicText = prefs.getString(PREF_KEY_TEXT, getString(R.string.text_option_1))
-                ?: getString(R.string.text_option_1)
         }
 
         override fun onSurfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
             super.onSurfaceChanged(holder, format, width, height)
             screenWidth = width
             screenHeight = height
-
-            if (xPos == 0f && yPos == 0f) {
-                xPos = width / 2f
-                yPos = height / 2f - ((paint.descent() + paint.ascent()) / 2f)
-            }
+            centerX = width / 2f
+            centerY = height / 2f
+            // Set radius to be 80% of the smallest screen dimension
+            radius = min(width, height) / 2f * 0.8f
 
             if (isVisible) {
                 handler.removeCallbacks(drawRunnable)
@@ -76,8 +89,10 @@ class TextLiveWallpaper : WallpaperService() {
         override fun onVisibilityChanged(visible: Boolean) {
             isVisible = visible
             if (visible) {
+                // Start drawing when visible
                 handler.post(drawRunnable)
             } else {
+                // Stop drawing when not visible
                 handler.removeCallbacks(drawRunnable)
             }
         }
@@ -89,41 +104,52 @@ class TextLiveWallpaper : WallpaperService() {
         }
 
         private fun drawFrame() {
-            xPos += xVelocity
-            yPos += yVelocity
-
-            val halfTextWidth = paint.measureText(dynamicText) / 2
-            val textBoundsLeft = xPos - halfTextWidth
-            val textBoundsRight = xPos + halfTextWidth
-            val textBoundsTop = yPos + paint.ascent()
-            val textBoundsBottom = yPos + paint.descent()
-
-            if (textBoundsLeft < 0) {
-                xVelocity = kotlin.math.abs(xVelocity)
-                xPos = halfTextWidth
-            } else if (textBoundsRight > screenWidth) {
-                xVelocity = -kotlin.math.abs(xVelocity)
-                xPos = screenWidth - halfTextWidth
-            }
-
-            if (textBoundsTop < 0) {
-                yVelocity = kotlin.math.abs(yVelocity)
-                yPos = -paint.ascent()
-            } else if (textBoundsBottom > screenHeight) {
-                yVelocity = -kotlin.math.abs(yVelocity)
-                yPos = screenHeight - paint.descent()
-            }
-
             var canvas: Canvas? = null
             try {
                 canvas = surfaceHolder?.lockCanvas()
                 if (canvas != null) {
+                    // Get current time
+                    val calendar = Calendar.getInstance()
+                    val hour = calendar.get(Calendar.HOUR)
+                    val minute = calendar.get(Calendar.MINUTE)
+                    val second = calendar.get(Calendar.SECOND)
+
+                    // 1. Clear the canvas
                     canvas.drawColor(Color.BLACK)
-                    canvas.drawText(dynamicText, xPos, yPos, paint)
+
+                    // 2. Draw the clock face (a simple circle)
+                    canvas.drawCircle(centerX, centerY, radius, facePaint)
+
+                    // 3. Draw the hour hand
+                    // 12 hours on the clock, 360 degrees / 12 = 30 degrees per hour
+                    // Also move based on minutes: 30 degrees / 60 minutes = 0.5 degrees per minute
+                    val hourAngle = (hour + minute / 60f) * 30 - 90
+                    drawHand(canvas, hourAngle, radius * 0.5f, hourHandPaint) // 50% of radius
+
+                    // 4. Draw the minute hand
+                    // 60 minutes on the clock, 360 degrees / 60 = 6 degrees per minute
+                    val minuteAngle = minute * 6 - 90
+                    drawHand(canvas, minuteAngle.toFloat(), radius * 0.7f, minuteHandPaint) // 70% of radius
+
+                    // 5. Draw the second hand
+                    // 60 seconds on the clock, 360 degrees / 60 = 6 degrees per second
+                    val secondAngle = second * 6 - 90
+                    drawHand(canvas, secondAngle.toFloat(), radius * 0.9f, secondHandPaint) // 90% of radius
+
+                    // 6. Draw center point
+                    canvas.drawCircle(centerX, centerY, 10f, centerPaint)
                 }
             } finally {
                 canvas?.let { surfaceHolder?.unlockCanvasAndPost(it) }
             }
+        }
+
+        private fun drawHand(canvas: Canvas, angleDegrees: Float, length: Float, paint: Paint) {
+            // Convert angle to radians for trig functions
+            val angleRadians = Math.toRadians(angleDegrees.toDouble())
+            val endX = (centerX + length * cos(angleRadians)).toFloat()
+            val endY = (centerY + length * sin(angleRadians)).toFloat()
+            canvas.drawLine(centerX, centerY, endX, endY, paint)
         }
     }
 }
