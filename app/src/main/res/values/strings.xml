@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">Thamizh Analog Clock</string>
-    <string name="activity_title">Set Your Live Wallpaper</string>
+    <string name="activity_title">Clock Wallpaper Settings</string>
     <string name="wallpaper_description">A simple analog clock live wallpaper.</string>
     <string name="wallpaper_name">Analog Clock Wallpaper</string>
     <string name="button_set_wallpaper">Set Live Wallpaper</string>
 
+    <string name="setting_title_number_style">Number Style</string>
+    <string name="setting_option_standard">Standard (1, 2, 3)</string>
+    <string name="setting_option_tamil">Tamil (க, உ, ௩)</string>
 </resources>
